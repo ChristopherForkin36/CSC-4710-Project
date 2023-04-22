@@ -1,6 +1,4 @@
 <?php
-    include("data_layer.php");
-    
     
     $servername ="localhost";
     $username ="id20140698_csc4110";
@@ -8,29 +6,7 @@
     $database="id20140698_todolist";
     
     $conn=new mysqli($servername, $username, $password, $database);
-
-    function create_tasks_table() {
-        //  Request for student data
-        $tasks = db_get_task_data();
-        // Create table with student data
-        foreach ($tasks as $r) {
-            echo "<tr>\n";
-            echo "<td>" . $r[0] . "</td>\n";
-            echo "<td>" . $r[1] . "</td>\n";
-            echo "<td>" . $r[2] . "</td>\n";
-            echo "<td>" . $r[3] . "</td>\n";
-            echo "<td>" . $r[4] . "</td>\n";
-            echo "<td>" . $r[5] . "</td>\n";
-            echo "<td>
-            <a class='btn btn-primary btn-sm' href='edit.php?id=$r[0]'>Edit</a>
-                            <a class='btn btn-danger btn-sm' href='delete.php?id=$r[0]'>Delete</a>
-                            
-                        </td>";
-
-            //echo "<td><a href='db_remove_student.php?id=" . $r[0] . "'>Delete</a></td>\n";
-            echo "</tr>\n";
-        }
-    }
+        $task_id="";
         $task_desc = "";
         $task_due_date = "";
         $task_cat = "";
@@ -40,31 +16,54 @@
         $successMessage="";
         
     
-    if ($_SERVER['REQUEST_METHOD'] == 'POST'){
-        $task_desc = $_POST['description'];
+    if ($_SERVER['REQUEST_METHOD'] == 'GET'){
+        // if(!isset($_GET["task_id"])){
+        //     header("location: index2.php");
+        //     exit;
+        // }
+        $task_id=$_GET["id"];
+        
+        $sql ="SELECT * FROM tasks WHERE task_id='$task_id'";
+        $result=$conn->query($sql);
+        $row=$result->fetch_assoc();
+        
+        // if(!row){
+        //     header("location: index2.php");
+        //     exit;
+        // }
+        
+        
+        $task_desc = $row["task_desc"];
+        $task_due_date = $row["task_due_date"];
+        $task_cat = $row["task_cat"];
+        $task_priority = $row["task_priority"];
+        $task_status = $row["task_status"];
+    }
+    else{
+           $task_desc = $_POST['description'];
         $task_due_date = $_POST['task_due_date'];
         $task_cat = $_POST['task_cat'];
         $task_priority = $_POST['task_priority'];
         $task_status = $_POST['task_status'];
         
+    
         do{
             if (empty($task_desc) || empty($task_due_date)){
                 $errorMessage="Enter required fields.";
                 break;
             }
             
-            $sql = "INSERT INTO tasks (task_desc, task_due_date, task_cat, task_priority, task_status) VALUES ('$task_desc', '$task_due_date', '$task_cat', '$task_priority', '$task_status')";
+            $sql = "UPDATE tasks SET description='$task_desc', task_due_date='$task_due_date', task_cat='$task_cat', task_priority='$task_priority', task_status='$task_status' WHERE task_id = $task_id";
             $result=$conn->query($sql);
             if (!$result){
                 $errorMessage="invaild query" . $conn->error;
                 break;
             }
-
-            $task_desc = "";
-            $task_due_date = "";
-            $task_cat = "";
             
-            $successMessage="Task added succesfully!";
+            $successMessage="Task updated succesfully!";
+            
+              header("location: index2.php");
+            exit;
         }
         while (false);
     }
@@ -79,30 +78,15 @@
 <head>
    <meta charset="utf-8">
    <title>To-Do List</title>
-     <style>
-body {
-background-color: #b4e1fa;
-margin: 0 10%;
-font-family: sans-serif;
-}
-h1 {text-align: center;
-font-family: serif;
-font-weight: normal;
-text-transform: uppercase;
-border-bottom: 1px solid #57b1dc;
-margin-top: 30px;
-}
-
-</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css
+">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js
+"></script>
 
 </head>
-<nav>
-    <ul>
-        <li><a href="authors.html">Authors' Pages</a></li>
-    </ul>
-</nav>
 
-<h2>Your To-Do List</h2>
+
+<h2>Edit Task</h2>
 <?php
 if (!empty($successMessage)){
     echo $successMessage;
@@ -118,6 +102,8 @@ if (!empty($errorMessage)){
     <ul>
 
         <form method="POST">
+            <input type="hidden" name="task_id" value="<?php echo $task_id;?>" >
+            
 
         <li><label for="description">*Task Description: 
            <br> <textarea rows="2" cols="30" name="description"id="description" value ="<?php echo $task_desc;?>" required ></textarea>
@@ -139,27 +125,9 @@ if (!empty($errorMessage)){
             <input type="radio" name="task_status" id="complete" value ="complete">
             <label for="complete">Complete</label>
             <br>
-            <input type="submit" value="Add Task">
+            <input type="submit" value="Edit Task">
       
         </form>
-
-        <body>
-            <h2>To-Do List</h2>
-            
-            <table>
-                <tr>
-                    <th>ID</th>
-                    <th>Description</th>
-                    <th>Category</th>
-                    <th>Due Date</th>
-                    <th>Priority</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>  <?php
-                 create_tasks_table();
-                 ?>
-                  
-                  
                             
       
                  
