@@ -8,6 +8,8 @@
     $database="id20140698_todolist";
     
     $conn=new mysqli($servername, $username, $password, $database);
+    $sql = "SELECT * FROM `category`";
+    $all_categories = mysqli_query($conn,$sql);
 
     function create_tasks_table() {
         //  Request for student data
@@ -23,8 +25,9 @@
             echo "<td>" . $r[5] . "</td>\n";
             echo "<td>
             <a class='btn btn-primary btn-sm' href='edit.php?id=$r[0]'>Edit</a>
-            <a class='btn btn-danger btn-sm' href='delete.php?id=$r[0]'>Delete</a>
-            <a class='btn btn-secondary btn-sm' href='toggle_task_status.php?id=$r[0]'>" . ($r[5] == 'active' ? 'Mark as Complete' : 'Mark as Active') . "</a>
+                            <a class='btn btn-danger btn-sm' href='delete.php?id=$r[0]'>Delete</a>
+                                        <a class='btn btn-secondary btn-sm' href='toggle_task_status.php?id=$r[0]'>" . ($r[5] == 'active' ? 'Mark as Complete' : 'Mark as Active') . "</a>
+
                             
                         </td>";
 
@@ -100,6 +103,8 @@ margin-top: 30px;
 <nav>
     <ul>
         <li><a href="authors.html">Authors' Pages</a></li>
+        <li><a href="categories.php">Categories Pages</a></li>
+        <li><a href="categoryview.php">Category View Page</a></li>
     </ul>
 </nav>
 
@@ -125,7 +130,28 @@ if (!empty($errorMessage)){
               
         <li><label for="task_due_date">*Due Date: <input type="date" name="task_due_date"id="task_due_date" value ="<?php echo $task_due_date;?>"
         required></li>
-        <li><label for="task_cat">Task Category: <input type="text" name="task_cat" value ="<?php echo $task_cat;?>"></li>
+        <li><label>Select a Category</label>
+        <select name="task_cat">
+            <?php
+                // use a while loop to fetch data
+                // from the $all_categories variable
+                // and individually display as an option
+                while ($name = mysqli_fetch_array(
+                        $all_categories,MYSQLI_ASSOC)):;
+            ?>
+                <option value="<?php echo $name["id"];
+                    // The value we usually set is the primary key
+                ?>">
+                    <?php echo $name["name"];
+                        // To show the category name to the user
+                    ?>
+                </option>
+            <?php
+                endwhile;
+                // While loop must be terminated
+            ?>
+        </li>
+        </select>
             <legend>Priority</legend>
             <select name="task_priority" id="task_priority" >
                 <option value ="0">NA</option>
@@ -143,6 +169,8 @@ if (!empty($errorMessage)){
             <input type="submit" value="Add Task">
       
         </form>
+        
+      
 
         <body>
             <h2>To-Do List</h2>
@@ -159,6 +187,8 @@ if (!empty($errorMessage)){
                 </tr>  <?php
                  create_tasks_table();
                  ?>
+                 
+                  
                   
                   
                             
