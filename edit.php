@@ -40,7 +40,8 @@
         $task_status = $row["task_status"];
     }
     else{
-           $task_desc = $_POST['description'];
+        $task_id = $_POST['task_id'];
+        $task_desc = $_POST['description'];
         $task_due_date = $_POST['task_due_date'];
         $task_cat = $_POST['task_cat'];
         $task_priority = $_POST['task_priority'];
@@ -53,7 +54,7 @@
                 break;
             }
             
-            $sql = "UPDATE tasks SET description='$task_desc', task_due_date='$task_due_date', task_cat='$task_cat', task_priority='$task_priority', task_status='$task_status' WHERE task_id = $task_id";
+            $sql = "UPDATE tasks SET task_desc='$task_desc', task_due_date='$task_due_date', task_cat='$task_cat', task_priority='$task_priority', task_status='$task_status' WHERE task_id = $task_id";
             $result=$conn->query($sql);
             if (!$result){
                 $errorMessage="invaild query" . $conn->error;
