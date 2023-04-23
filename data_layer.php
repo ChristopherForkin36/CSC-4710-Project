@@ -1,4 +1,31 @@
 <?php
+error_reporting(-1);
+
+
+function db_get_cat_data() {
+    require("db_credentials.php");
+    // $servername ="localhost";
+    // $username ="id20140698_csc4110";
+    // $password = "!A123456789a";
+    // $database="id20140698_todolist";
+    
+    $conn = mysqli_connect($servername,$username,$password,$database);
+    
+    $query = "SELECT * FROM category;";
+    $result = mysqli_query($conn,$query);
+    if (!$result) {
+    trigger_error(mysqli_error($conn), E_USER_ERROR);
+    }
+    $relation = array();
+    while ($row = mysqli_fetch_row($result)) {
+        $temp = array();
+        array_push($temp,$row[0],$row[1]);
+        array_push($relation,$temp);
+    }
+    mysqli_close($conn);
+    return $relation;
+}
+
 
 function db_get_task_data() {
     require("db_credentials.php");
@@ -9,7 +36,7 @@ function db_get_task_data() {
     
     $conn = mysqli_connect($servername,$username,$password,$database);
     
-    $query = "SELECT task_id,task_desc,task_cat FROM tasks;";
+    $query = "SELECT * FROM tasks WHERE task_status = 'active' AND task_due_date <= CURDATE() ORDER BY task_priority;";
     $result = mysqli_query($conn,$query);
     if (!$result) {
     trigger_error(mysqli_error($conn), E_USER_ERROR);
@@ -17,12 +44,37 @@ function db_get_task_data() {
     $relation = array();
     while ($row = mysqli_fetch_row($result)) {
         $temp = array();
-        array_push($temp,$row[0],$row[1],$row[2]);
+        array_push($temp,$row[0],$row[1],$row[2],$row[3],$row[4],$row[5]);
         array_push($relation,$temp);
     }
     mysqli_close($conn);
     return $relation;
 }
+
+function db_get_task_data_category() {
+    require("db_credentials.php");
+    // $servername ="localhost";
+    // $username ="id20140698_csc4110";
+    // $password = "!A123456789a";
+    // $database="id20140698_todolist";
+    
+    $conn = mysqli_connect($servername,$username,$password,$database);
+    
+    $query = "SELECT * FROM tasks WHERE task_cat = '1' ORDER BY task_priority, task_due_date;";
+    $result = mysqli_query($conn,$query);
+    if (!$result) {
+    trigger_error(mysqli_error($conn), E_USER_ERROR);
+    }
+    $relation = array();
+    while ($row = mysqli_fetch_row($result)) {
+        $temp = array();
+        array_push($temp,$row[0],$row[1],$row[2],$row[3],$row[4],$row[5]);
+        array_push($relation,$temp);
+    }
+    mysqli_close($conn);
+    return $relation;
+    }
+
 
 function db_get_student_grade_data() {
     require("db_credentials.php");
@@ -77,8 +129,8 @@ function db_remove_student($id) {
 function db_add_task($task_desc,$task_due_date, $task_cat, $task_priority, $task_status ) {
     require("db_credentials.php");
     $conn = mysqli_connect($servername,$username,$password,$database);
-    $stmt = mysqli_prepare($conn,"INSERT INTO tasks (task_desc, task_due_date, task_cat, task_priority, task_status) VALUES (?, ?, ?, ?, ?)");
-    mysqli_stmt_bind_param($stmt,"ss",$task_desc,$task_due_date, $task_cat, $task_priority, $task_status);
+    $stmt = mysqli_prepare($conn,"INSERT INTO tasks (task_desc, task_due_date, task_cat, task_priority, task_status) VALUES (?, ?, ?, ?, ?);");
+    mysqli_stmt_bind_param($stmt,"sssis",$task_desc,$task_due_date, $task_cat, $task_priority, $task_status);
     mysqli_stmt_execute($stmt);
     mysqli_close($conn);
     header("location:index.php");
