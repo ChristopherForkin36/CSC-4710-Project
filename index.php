@@ -23,7 +23,8 @@
             echo "<td>" . $r[5] . "</td>\n";
             echo "<td>
             <a class='btn btn-primary btn-sm' href='edit.php?id=$r[0]'>Edit</a>
-                            <a class='btn btn-danger btn-sm' href='delete.php?id=$r[0]'>Delete</a>
+            <a class='btn btn-danger btn-sm' href='delete.php?id=$r[0]'>Delete</a>
+            <a class='btn btn-secondary btn-sm' href='toggle_task_status.php?id=$r[0]'>" . ($r[5] == 'active' ? 'Mark as Complete' : 'Mark as Active') . "</a>
                             
                         </td>";
 
